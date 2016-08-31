@@ -1,0 +1,57 @@
+/******************************************************************************
+ *  Compilation:  javac StockQuote.java
+ *  Execution:    java StockQuote symbol
+ *  Dependencies: In.java, StdOut.java
+ *
+ *  Print the stock price of the stock with the given symbol.
+ *  Screen scrapes http://finance.yahoo.com to get the current price
+ *  and associated information.
+ *
+ *  Warning: if Yahoo updates the format of their page,
+ *           this program also needs to be updated.
+ *
+ *  % java StockQuote GOOG
+ *  744.0
+ *  Alphabet Inc.
+ *  Wed Jul 27 12:19:16 PDT 2016 
+ *
+ *  % java StockQuote AAPL
+ *  103.78
+ *  Apple Inc.
+ *  Wed Jul 27 12:19:21 PDT 2016 
+ * 
+ *  % java StockQuote IBM
+ *  162.29
+ *  International Business Machines Corporation
+ *  Wed Jul 27 12:19:26 PDT 2016 
+ *
+ *  % java StockQuote MSFT
+ *  56.46
+ *  Microsoft Corporation
+ *  Wed Jul 27 12:19:30 PDT 2016 
+ *
+ ******************************************************************************/
+
+public class StockQuote {
+    // Given symbol, get HTML
+    private static String readHTML(String symbol) {
+	In page = new In("http://finance.yahoo.com/quote/" + symbol);
+	String html = page.readAll();
+
+	// If we get the proper page, return the HTML; else return null
+	if (html.contains("<title></title>")) return null;
+	else return html;
+    }
+
+    // Given symbol, get current stock price
+    public static double priceOf(String symbol) {
+	String html = readHTML(symbol);
+	int p = html.indexOf("price.0", 0);   // "price.0" index
+	int from = html.indexOf(">", p);   // ">" index
+	int to = html.indexOf("</span>", from);   // "</span>" index
+	String price = html.substring(from + 1, to);
+
+	// Remove any comma separators and return stock price
+	return Double.parseDouble(price.replaceAll(",", ""));
+    }
+}
